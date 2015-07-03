@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
 
-require_relative 'util'
+require_relative 'user'
 
-def banner(fname, dest)
-	(lines, cols) = getScreenDimensions
+def banner(fname, user)
+	cols = user.cols
 	max_width = 0
 	File.open(fname, "r") do |f|
 		f.each_line do |line|
@@ -15,36 +15,14 @@ def banner(fname, dest)
 
 		space = (cols - max_width) / 2
 		if( space < 0 )
-			dest.puts "ERROR: Screen not wide enough for banner!"
-			exit
+			user.out.puts "ERROR: Screen not wide enough for banner!"
+			return
 		end
 
 		f.rewind
 
 		f.each_line do |line|
-			dest.puts (" " * space) + line.chomp
+			user.out.puts((" " * space) + line.chomp)
 		end
 	end
 end
-
-banner("sites/arl", $stdout)
-puts ""
-puts ""
-puts ""
-banner("sites/yoyodyne", $stdout)
-puts ""
-puts ""
-puts ""
-banner("sites/md", $stdout)
-puts ""
-puts ""
-puts ""
-banner("sites/veridian", $stdout)
-puts ""
-puts ""
-puts ""
-banner("sites/uber-braun", $stdout)
-puts ""
-puts ""
-puts ""
-banner("sites/minacon", $stdout)

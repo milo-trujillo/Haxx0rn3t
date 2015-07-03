@@ -1,13 +1,13 @@
 #!/usr/bin/env ruby
 
-require_relative 'util'
+require_relative 'user'
 
 def getRandomSymbol
 	return (32 + rand(94)).chr
 end
 
-def matrix(duration, width)
-	(lines, cols) = getScreenDimensions
+def matrix(duration, width, user)
+	cols = user.cols
 	space = (cols - width) / 2
 	for x in (1 .. 100)
 		string = ""
@@ -18,31 +18,29 @@ def matrix(duration, width)
 				string += " "
 			end
 		end
-		puts (" " * space) + string
+		user.out.puts (" " * space) + string
 		sleep(0.3)
 	end
 end
 
-def establishingConnection(duration, destination)
-	printState = STDOUT.sync
-	STDOUT.sync = true
+def establishingConnection(duration, destination, user)
+	printState = user.out.sync
+	user.out.sync = true
 	for i in (1 .. ((duration / 3) * 10))
-		print "      Connecting to " + destination + "      "
+		user.out.print "      Connecting to " + destination + "      "
 		sleep(0.2)
-		print "\r"
-		print ".     Connecting to " + destination + "   .  "
+		user.out.print "\r"
+		user.out.print ".     Connecting to " + destination + "   .  "
 		sleep(0.2)
-		print "\r"
-		print "..    Connecting to " + destination + "   .. "
+		user.out.print "\r"
+		user.out.print "..    Connecting to " + destination + "   .. "
 		sleep(0.2)
-		print "\r"
-		print "...   Connecting to " + destination + "   ..."
+		user.out.print "\r"
+		user.out.print "...   Connecting to " + destination + "   ..."
 		sleep(0.2)
-		print "\r"
+		user.out.print "\r"
 	end
-	print "\r=== Uplink established to " + destination + " ===\n"
-	STDOUT.sync = printState
+	user.out.print "\r=== Uplink established to " + destination + " ===\n"
+	user.out.sync = printState
 end
 
-matrix(3, 50)
-#establishingConnection(5, "Massive Dynamic")
