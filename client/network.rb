@@ -5,7 +5,13 @@ require_relative 'util'
 
 def connect(serveraddr, portno)
 	(lines, cols) = getScreenDimensions
-	sock = TCPSocket.open(serveraddr, portno)
+	sock = ""
+	begin
+		sock = TCPSocket.open(serveraddr, portno)
+	rescue
+		puts "=== Unable to connect ==="
+		return
+	end
 	puts "=== Connected to Server ==="
 	sock.puts(cols.to_s)
 	sock.puts(lines.to_s)
