@@ -185,5 +185,3 @@ def testCurrency
 	puts "Valid assets: #{Currency.numAssets}"
 	puts "Total assets: #{Currency.numGeneratedAssets}"
 end
-
-testCurrency
