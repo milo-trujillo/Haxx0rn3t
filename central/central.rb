@@ -29,16 +29,20 @@ module Central
 	end
 
 	def Central.handleClient(sock)
-		col = sock.gets.chomp.to_i
-		row = sock.gets.chomp.to_i
-		if( col == 0 || row == 0 )
-			sock.puts("Syntax error connecting, are you using the client?")
-			sock.close
-			return
-		end
-		client = Client.new(sock, sock, col, row, "")
-		unless loginClient(client)
-			return
+		begin
+			col = sock.gets.chomp.to_i
+			row = sock.gets.chomp.to_i
+			if( col == 0 || row == 0 )
+				sock.puts("Syntax error connecting, are you using the client?")
+				sock.close
+				return
+			end
+			client = Client.new(sock, sock, col, row, "")
+			unless loginClient(client)
+				return
+			end
+		rescue
+			puts "Client disconnected during login process"
 		end
 		m = Menu.new("Central Server", 
 			[["BBS", proc{ alert }],
