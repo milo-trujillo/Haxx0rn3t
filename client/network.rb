@@ -1,7 +1,37 @@
 #!/usr/bin/env ruby
 
 require 'socket'
+require 'thread'
 require_relative 'util'
+
+$screenLock = Mutex.new
+NetworkPrint = true
+
+def readFromServer(sock)
+	begin
+		while( char = sock.recv(1) )
+			break if char.empty?
+			# This is probably really inefficient, but since it's the client
+			# we don't particularly care.
+			$screenLock.synchronize {
+				if( NetworkPrint )
+					print char
+				end
+			}
+		end
+	rescue
+	end
+	puts "=== Server has closed connection ==="
+end
+
+def writeToServer(sock)
+	begin
+		while( line = gets )
+			sock.puts(line)
+		end
+	rescue
+	end
+end
 
 def connect(serveraddr, portno)
 	state = STDOUT.sync
@@ -17,16 +47,9 @@ def connect(serveraddr, portno)
 	puts "=== Connected to Server ==="
 	sock.puts(cols.to_s)
 	sock.puts(lines.to_s)
-	sock.puts("Hai server!")
-	begin
-		while( char = sock.recv(1) )
-			break if char.empty?
-			print char
-		end
-	rescue
-	end
-	puts "=== Server has closed connection ==="
+	recv = Thread.new { readFromServer(sock) }
+	send = Thread.new { writeToServer(sock) }
+	recv.join
+	send.join
 	STDOUT.sync = state
 end
-
-
