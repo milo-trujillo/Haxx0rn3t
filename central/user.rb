@@ -81,16 +81,13 @@ def createUserFromString(str)
 	return User.new(handle, pass, true)
 end
 
-def login(sock, users, userlock)
+def login(client, users, userlock)
 	puts "Starting login process"
 	# Get a username and password out of them first
-	printState = sock.sync
-	sock.sync = true
-	sock.print("Username: ")
-	username = sock.gets.chomp
-	sock.print("Password: ")
-	password = sock.gets.chomp
-	sock.sync = printState
+	client.putsNow("Username: ")
+	username = client.gets.chomp
+	client.putsNow("Password: ")
+	password = client.gets.chomp
 
 	# First determine if the account exists, or if we should start
 	# registration
@@ -108,6 +105,7 @@ def login(sock, users, userlock)
 		userlock.synchronize {
 			if( users[username] != nil )
 				if( users[username].isCorrectPassword?(password) )
+					client.name = username
 					correctPassword = true
 				end
 			end
@@ -117,7 +115,7 @@ def login(sock, users, userlock)
 	# to register. Only if they want to register and the username is still
 	# available can the account be created and the user auto-logged in.
 	else
-		register = registerUser(sock, users)
+		register = registerUser(client, users)
 		if( register == true )
 			success = false
 			userlock.synchronize {
@@ -127,10 +125,11 @@ def login(sock, users, userlock)
 				end
 			}
 			if( success )
-				sock.puts("Successfully registered user.")
+				client.name = username
+				client.puts("Successfully registered user.")
 				return true
 			else
-				sock.puts("Failed to register user (already exists).")
+				client.puts("Failed to register user (already exists).")
 				return false
 			end
 		else
@@ -140,18 +139,14 @@ def login(sock, users, userlock)
 end
 
 # Returns true/false of whether the user would like to register a new account
-def registerUser(sock, userlist)
-	printState = sock.sync
-	sock.sync = true
+def registerUser(client, userlist)
 	done = false
 	while( !done )
-		sock.print("User does not exist. Register? [Y/N]: ")
-		response = sock.gets.chomp.upcase
+		client.putsNow("User does not exist. Register? [Y/N]: ")
+		response = client.gets.chomp.upcase
 		if( response == "N" )
-			sock.sync = printState
 			return false
 		elsif( response == "Y" )
-			sock.sync = printState
 			return true
 		end
 	end
