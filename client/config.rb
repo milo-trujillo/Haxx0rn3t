@@ -13,7 +13,7 @@ Config = ClientDir + "/config"
 
 DebugMode = true
 Prompt = "Local Gateway# "
-GameName = "HaxxorNet"
+GameName = "Haxx0rN3t"
 CentralServer = "central"
 ConfigFiles = [Hosts, Config]
 
@@ -31,11 +31,17 @@ def readConfig(hosts)
 	hostFile = File.open(Hosts, 'r')
 	while( line = hostFile.gets )
 		shortname, hostname, port = line.split(':')
+		if( DebugMode )
+			puts "[Debug Reading Host]"
+			puts "Shortname: " + shortname
+			puts "Hostname: " + hostname
+			puts "Port: " + port.to_s
+		end
 		if( shortname.length == 0 || hostname.length == 0 || port.length == 0 )
 			puts "Error: '" + Hosts + "' is corrupted!"
 			exit(1)
 		end
-		hosts[shortname] = [hostname, port]
+		hosts[shortname] = [hostname, port.to_i]
 	end
 	hostFile.close
 	unless( hosts.has_key?(CentralServer) )
@@ -46,5 +52,16 @@ def readConfig(hosts)
 		print "Port Number: "
 		port = gets.chomp.to_i
 		hosts[CentralServer] = [hostname, port]
+		saveHosts(hosts)
 	end
+end
+
+def saveHosts(hosts)
+	hostFile = File.open(Hosts, 'w')
+	for host in hosts.keys
+		hostLine = "%s:%s:%s" % [host, hosts[host][0].to_s, hosts[host][1].to_s]
+		hostFile.puts(hostLine)
+	end
+	hostFile.close
+	puts "Hosts saved successfully."
 end
