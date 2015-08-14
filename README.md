@@ -20,8 +20,6 @@ Haxx0rn3t is broken into three pieces: The central server, the auxiliary servers
 
 All portions will need a reasonably new version of Ruby (at least 1.9).
 
-The client will require Socket and Ruby-Terminfo.
+In addition to the standard Ruby modules (Socket, Thread, Base64, Digest/Sha2, etc), you will need Ruby-Terminfo for the client only.
 
-The auxiliary server will require Socket and Thread.
-
-The central server will require Socket, Thread, and Digest/Sha2.
+At present no other modules are needed.
