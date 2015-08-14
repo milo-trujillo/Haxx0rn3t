@@ -61,14 +61,54 @@ module Central
 	def Central.alert()
 		puts "Alert called!"
 	end
+
+	def Central.saveState()
+		saveUsersToFile("userdump.txt", $users, $userLock)
+		Currency.saveManifest("currencydump.db")
+	end
+end
+
+=begin
+	This is the main for the central server. We start by registering a handler
+	for saving our state, then kick off TCP and start handling incoming clients.
+=end
+
+# This is a hack for handling repeated signals, as described here:
+# http://www.sitepoint.com/the-self-pipe-trick-explained/
+SIGNAL_QUEUE = []
+[:INT, :QUIT, :TERM].each do |signal|
+	Signal.trap(signal) do
+		SIGNAL_QUEUE << signal
+	end
+end
+
+def handleInt
+	puts("") # My terminal prints '^C', so I'd like to throw in a newline
+	puts "Saving state information to disk..."
+	Central.saveState
+	puts "Quitting..."
+	exit(0)
 end
 
 if $0 == __FILE__
 	server = TCPServer.open(Central::ListenPort)
 	while(true)
-		Thread.start(server.accept) do |client|
-			puts "Client connected"
-			Central.handleClient(client)
+		case SIGNAL_QUEUE.pop
+		when :INT
+			handleInt
+		else
+			begin
+				client = server.accept_nonblock
+				Thread.start do
+					puts "Client connected"
+					Central.handleClient(client)
+				end
+			rescue
+				# Accept_nonblock throws an exception if we didn't get a socket
+				# to accept. All we need to do in that case is pause and try
+				# again.
+				sleep(1)
+			end
 		end
 	end
 end
