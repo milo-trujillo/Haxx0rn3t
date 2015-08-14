@@ -4,15 +4,12 @@ require 'socket'
 require 'thread'
 
 require_relative 'user'
+require_relative 'config'
 require_relative 'currency'
 require_relative '../util/client'
 require_relative '../util/menu'
 
-Thread.abort_on_exception = true
-
 module Central
-	ListenPort = 1234
-
 	$users = Hash.new
 	$userLock = Mutex.new
 
@@ -63,8 +60,9 @@ module Central
 	end
 
 	def Central.saveState()
-		saveUsersToFile("userdump.txt", $users, $userLock)
-		Currency.saveManifest("currencydump.db")
+		Configuration.prepareState
+		saveUsersToFile(Configuration::UserPath, $users, $userLock)
+		Currency.saveManifest(Configuration::CurrencyPath)
 	end
 end
 
@@ -91,7 +89,7 @@ def handleInt
 end
 
 if $0 == __FILE__
-	server = TCPServer.open(Central::ListenPort)
+	server = TCPServer.open(Configuration::ListenPort)
 	while(true)
 		case SIGNAL_QUEUE.pop
 		when :INT
