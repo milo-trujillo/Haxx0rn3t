@@ -14,13 +14,47 @@ module Configuration
 	CurrencyPath = StateDir + "/currency.db"
 	ListenPort = 1234
 
+	# For looping over all config files
+	StateFiles = [UserPath, CurrencyPath]
+
 	# Later we may add variables for max users, max connections,
 	# reserved usernames, locations for log files, etc
 
 	# Makes the state directory if it doesn't already exist
 	def Configuration.prepareState
 		unless( File.directory?(StateDir) )
-			Dir.mkdir(StateDir)
+			begin
+				Dir.mkdir(StateDir)
+			rescue
+				puts "Error making state directory!"
+				return false
+			end	
+			return true
+		end
+		return true
+	end
+
+	# Returns true if all state files exist, false otherwise.
+	# We do not support restoring from partial state.
+	def Configuration.stateExists
+		for f in StateFiles
+			unless( File.exists?(f) )
+				return false
+			end
+		end
+		return true
+	end
+
+	# Deletes all files storing program state
+	def Configuration.clearState
+		for f in StateFiles
+			if( File.exists?(f) )
+				begin
+					File.delete(f)
+				rescue
+					puts "Warning: Unable to delete file '" + f + "'!"
+				end
+			end
 		end
 	end
 end

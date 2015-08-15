@@ -60,9 +60,13 @@ module Central
 	end
 
 	def Central.saveState()
-		Configuration.prepareState
 		saveUsersToFile(Configuration::UserPath, $users, $userLock)
 		Currency.saveManifest(Configuration::CurrencyPath)
+	end
+
+	def Central.loadState()
+		readUsersFromFile(Configuration::UserPath, $users, $userLock)
+		Currency.loadManifest(Configuration::CurrencyPath)
 	end
 end
 
@@ -81,6 +85,7 @@ SIGNAL_QUEUE = []
 end
 
 def handleInt
+	Configuration.prepareState
 	puts("") # My terminal prints '^C', so I'd like to throw in a newline
 	puts "Saving state information to disk..."
 	Central.saveState
@@ -89,6 +94,10 @@ def handleInt
 end
 
 if $0 == __FILE__
+	if( Configuration.stateExists )
+		Central.loadState
+		Configuration.clearState
+	end
 	server = TCPServer.open(Configuration::ListenPort)
 	while(true)
 		case SIGNAL_QUEUE.pop

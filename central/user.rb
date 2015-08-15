@@ -112,13 +112,16 @@ def readUsersFromFile(filename, users, userlock)
 		f = File.open(filename, "r")
 		userlock.synchronize {
 			while( line = f.gets )
+				line = line.chomp
 				username, password = line.split(":")
 				user = User.new(username, password, true)
 				users[user.handle] = user
 			end
 		}
-	rescue
+	rescue => e
 		puts "Problem reading users from file!"
+		puts e.message
+		puts e.backtrace
 		return false
 	ensure
 		f.close
