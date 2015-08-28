@@ -15,7 +15,7 @@ def handleInput(input)
 				puts "Hostname not known."
 			end
 		else
-			if( DebugMode )
+			if( DebugMode && input.length > 0 )
 				puts "Unknown command: " + input
 			end
 	end
