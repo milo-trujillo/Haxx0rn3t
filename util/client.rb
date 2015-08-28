@@ -49,8 +49,8 @@ class Client
 	def clearScreen
 		# We don't want to make the game unplayable for people with tall
 		# terminals. To that end we're going to fib the screen delay and say
-		# clearing the screen always takes four seconds.
-		clearDelay = 4.0 / @height
+		# clearing the screen always takes three seconds.
+		clearDelay = 3.0 / @height
 		for x in (0 .. @height - 1)
 			sleep(clearDelay)
 			@out.puts("")
