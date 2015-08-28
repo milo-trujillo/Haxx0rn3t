@@ -30,7 +30,11 @@ if __FILE__ == $0
 	end
 	while( true )
 		print Prompt
-		input = gets.chomp
+		input = gets
+		if( input == nil ) # Allow ^D to end the game
+			return
+		end
+		input = input.chomp
 		handleInput(input)
 	end
 end
