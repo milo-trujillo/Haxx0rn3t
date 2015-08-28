@@ -18,8 +18,6 @@ class Client
 	attr_reader :height
 	attr_accessor :name
 
-	ClearDelay = 0.1
-
 	def initialize(read, write, cols, lines, name)
 		@in = read
 		@out = write
@@ -49,8 +47,12 @@ class Client
 	end
 
 	def clearScreen
+		# We don't want to make the game unplayable for people with tall
+		# terminals. To that end we're going to fib the screen delay and say
+		# clearing the screen always takes four seconds.
+		clearDelay = 4.0 / @height
 		for x in (0 .. @height - 1)
-			sleep(ClearDelay)
+			sleep(clearDelay)
 			@out.puts("")
 		end
 		@out.puts("\033[0;0H")
