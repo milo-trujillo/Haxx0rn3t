@@ -10,6 +10,9 @@
 require 'base64'
 require 'digest/sha2'
 
+require_relative 'config'
+require_relative 'log'
+
 # We aren't expecting hard cryptographic security, but this way people
 # can't Google the ID strings and trivially get the real handles.
 UserIDSalt = "w4ULxGgA5smsTT1h"
@@ -72,7 +75,7 @@ end
 
 def testAccountSystem
 	u = User.new("neo", "ch0zen 0n3", false)
-	puts "User #{u.handle} has id #{u.ID}"
+	Log.log(Log::Debug, "User #{u.handle} has id #{u.ID}")
 end
 
 # Reverses the user.writeToString() method, for restoring from disk
@@ -90,13 +93,13 @@ def saveUsersToFile(filename, users, userlock)
 		begin
 			f = File.open(filename, "w")
 			for u in users.keys
-				puts "Saving user '" + u + "'"
+				Log.log(Log::Info, "Saving user '" + u + "'")
 				f.puts(users[u].writeToString)
 			end
 		rescue => e
-			puts "Problem saving users to file!"
-			puts e.message
-			puts e.backtrace
+			Log.log(Log::Error, "Problem saving users to file!")
+			Log.log(Log::Error, e.message)
+			Log.log(Log::Error, e.backtrace)
 			success = false
 		ensure
 			f.close
@@ -119,9 +122,9 @@ def readUsersFromFile(filename, users, userlock)
 			end
 		}
 	rescue => e
-		puts "Problem reading users from file!"
-		puts e.message
-		puts e.backtrace
+		Log.log(Log::Error, "Problem reading users from file!")
+		Log.log(Log::Error, e.message)
+		Log.log(Log::Error, e.backtrace)
 		return false
 	ensure
 		f.close
@@ -130,12 +133,19 @@ def readUsersFromFile(filename, users, userlock)
 end
 
 def login(client, users, userlock)
-	puts "Starting login process"
+	Log.log(Log::Debug, "Starting login process")
 	# Get a username and password out of them first
 	client.putsNow("Username: ")
 	username = client.gets.chomp
 	client.putsNow("Password: ")
 	password = client.gets.chomp
+
+	if( username.length > Configuration::MaxUsernameLength )
+		max = "Username exceeds maximum length "
+		max += "(" + Configuration::MaxUsernameLength.to_s + ")"
+		client.puts(max)
+		return false
+	end
 
 	# First determine if the account exists, or if we should start
 	# registration
@@ -154,6 +164,7 @@ def login(client, users, userlock)
 			if( users[username] != nil )
 				if( users[username].isCorrectPassword?(password) )
 					client.name = username
+					Log.log(Log::Info, "Logged in '" + username + "'")
 					correctPassword = true
 				end
 			end
@@ -175,6 +186,7 @@ def login(client, users, userlock)
 			if( success )
 				client.name = username
 				client.puts("Successfully registered user.")
+				Log.log(Log::Info, "Registered user '" + username + "'")
 				return true
 			else
 				client.puts("Failed to register user (already exists).")

@@ -16,6 +16,8 @@
 
 require 'thread'
 
+require_relative 'log'
+
 module Currency
 	AssetLength = 40
 	$validAssets = Hash.new
@@ -117,7 +119,7 @@ module Currency
 				elsif line.match(/^e:/)
 					expired.push(line[2..-1])
 				else
-					puts "Currency line (#{line}) invalid!"
+					Log.log(Log::Error, "Currency line (#{line}) invalid!")
 					return false
 				end
 			end
@@ -149,39 +151,39 @@ end
 def testCurrency
 	foo = Currency.genAsset
 	if( Currency.isValidAsset?(foo) )
-		puts (foo + " is a valid asset")
+		Log.log(Log::Debug, (foo + " is a valid asset"))
 	else
-		puts (foo + " is not a valid asset")
+		Log.log(Log::Debug, (foo + " is not a valid asset"))
 	end
 
 	success = Currency.expireAsset(foo)
 	if( success )
-		puts "Successfully retired asset"
+		Log.log(Log::Debug, "Successfully retired asset")
 	end
 	if( Currency.isValidAsset?(foo) )
-		puts (foo + " is a valid asset")
+		Log.log(Log::Debug, (foo + " is a valid asset"))
 	else
-		puts (foo + " is not a valid asset")
+		Log.log(Log::Debug, (foo + " is not a valid asset"))
 	end
 
 
 	foo = "foo"
 	if( Currency.isValidAsset?(foo) )
-		puts (foo + " is a valid asset")
+		Log.log(Log::Debug, (foo + " is a valid asset"))
 	else
-		puts (foo + " is not a valid asset")
+		Log.log(Log::Debug, (foo + " is not a valid asset"))
 	end
 
-	puts "Valid assets: #{Currency.numAssets}"
-	puts "Total assets: #{Currency.numGeneratedAssets}"
+	Log.log(Log::Debug, "Valid assets: #{Currency.numAssets}")
+	Log.log(Log::Debug, "Total assets: #{Currency.numGeneratedAssets}")
 
 	Currency.saveManifest("manifesttest.db")
 	Currency.reset
-	puts "Reset currency system"
-	puts "Valid assets: #{Currency.numAssets}"
-	puts "Total assets: #{Currency.numGeneratedAssets}"
+	Log.log(Log::Debug, "Reset currency system")
+	Log.log(Log::Debug, "Valid assets: #{Currency.numAssets}")
+	Log.log(Log::Debug, "Total assets: #{Currency.numGeneratedAssets}")
 	Currency.loadManifest("manifesttest.db")
-	puts "Restored currency system from disk"
-	puts "Valid assets: #{Currency.numAssets}"
-	puts "Total assets: #{Currency.numGeneratedAssets}"
+	Log.log(Log::Debug, "Restored currency system from disk")
+	Log.log(Log::Debug, "Valid assets: #{Currency.numAssets}")
+	Log.log(Log::Debug, "Total assets: #{Currency.numGeneratedAssets}")
 end
