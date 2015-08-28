@@ -10,23 +10,51 @@ require 'thread'
 require_relative 'util'
 
 $screenLock = Mutex.new
+$conn = nil
 
 class Connection
 	def initialize(sock, lines, cols)
 		@sock = sock
 		@networkPrint = true
-		@sock.puts(cols.to_s)
-		@sock.puts(lines.to_s)
-		recv = Thread.new { readFromServer() }
-		send = Thread.new { writeToServer() }
-		send.join
-		recv.kill
+		@connOpen = true
+		begin
+			@sock.puts(cols.to_s)
+			@sock.puts(lines.to_s)
+			return true
+		rescue
+			puts "=== Network Handshake Failed ==="
+			@connOpen = false
+			return false
+		end
 	end
 
-	# Stub function, but will later allow us to resume a connection if it's
-	# been suspended to go run some local shell stuff.
-	def resume
-		return
+	# Attempt to open a new or restore an existing network connection
+	# Returns true if it's possibly okay to restore the connection again
+	# Returns false if the connection is definitely dead
+	def start
+		if( @connOpen )
+			recv = Thread.new { readFromServer() }
+			send = Thread.new { writeToServer() }
+			send.join
+			recv.kill
+			if( @connOpen )
+				return true
+			else
+				return false
+			end
+		else
+			return false
+		end
+	end
+
+	# Will close the network connection and clear all data
+	# This renders the class safe to destroy
+	def close
+		begin
+			@connOpen = false
+			@sock.close
+		rescue
+		end
 	end
 
 	def readFromServer()
@@ -42,6 +70,7 @@ class Connection
 				}
 			end
 		rescue
+			@connOpen = false
 		end
 		puts "=== Server has closed connection ==="
 	end
@@ -49,13 +78,18 @@ class Connection
 	def writeToServer()
 		begin
 			while( line = gets )
-				if( line.chomp == "!quit" )
+				if( line.chomp == "!suspend" )
+					return
+				elsif( line.chomp == "!quit" )
+					puts "=== Terminated connection to remote host ==="
+					close
 					return
 				else
 					@sock.puts(line)
 				end
 			end
 		rescue
+			@connOpen = false
 		end
 	end
 end
@@ -63,6 +97,20 @@ end
 def connect(serveraddr, portno)
 	state = STDOUT.sync
 	STDOUT.sync = true
+	if( $conn != nil )
+		decision = nil
+		while( decision == nil )
+			print "You have an open network connection, override it? [Y/N] "
+			choice = gets.chomp.upcase
+			if( choice == "N" )
+				return
+			elsif( choice == "Y" )
+				$conn.close
+				$conn = nil
+				break
+			end
+		end
+	end
 	(lines, cols) = getScreenDimensions
 	sock = ""
 	begin
@@ -72,6 +120,17 @@ def connect(serveraddr, portno)
 		return
 	end
 	puts "=== Connected to Server ==="
-	conn = Connection.new(sock, lines, cols)
+	$conn = Connection.new(sock, lines, cols)
+	$conn.start
 	STDOUT.sync = state
+end
+
+def resumeConnection
+	if( $conn != nil )
+		if( ! $conn.start ) # If connection closes, nuke it
+			$conn = nil
+		end
+	else
+		puts "You have no network connection to resume!"
+	end
 end
