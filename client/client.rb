@@ -14,6 +14,8 @@ def handleInput(input)
 			else
 				puts "Hostname not known."
 			end
+		when /^resume$/
+			resumeConnection
 		else
 			if( DebugMode && input.length > 0 )
 				puts "Unknown command: " + input
@@ -32,7 +34,8 @@ if __FILE__ == $0
 		print Prompt
 		input = gets
 		if( input == nil ) # Allow ^D to end the game
-			return
+			puts "" # Clear the line in case the terminal printed a '^D'
+			exit(0)
 		end
 		input = input.chomp
 		handleInput(input)
