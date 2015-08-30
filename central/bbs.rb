@@ -39,9 +39,10 @@ module BBS
 	end
 
 	def BBS.readMessage(client)
+		client.puts("")
 		client.putsNow("Message number (blank to abort): ")
 		msg = client.gets
-		msg.gsub(/[^\d]/, "") # Leave only digits, ban negative numbers
+		msg = msg.gsub(/[\D]/, "") # Leave only digits, ban negative numbers
 		if( msg.length == 0 )
 			return
 		end
