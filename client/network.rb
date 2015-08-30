@@ -7,6 +7,7 @@
 
 require 'socket'
 require 'thread'
+require 'readline'
 require_relative 'util'
 
 $screenLock = Mutex.new
@@ -77,7 +78,8 @@ class Connection
 
 	def writeToServer()
 		begin
-			while( line = gets )
+			# Read a line silently, without adding it to history
+			while( line = Readline.readline('', false) )
 				if( line.chomp == "!suspend" )
 					return
 				elsif( line.chomp == "!quit" )
