@@ -14,6 +14,8 @@ $screenLock = Mutex.new
 $conn = nil
 
 class Connection
+	attr_reader :connOpen
+
 	def initialize(sock, lines, cols)
 		@sock = sock
 		@networkPrint = true
@@ -99,7 +101,7 @@ end
 def connect(serveraddr, portno)
 	state = STDOUT.sync
 	STDOUT.sync = true
-	if( $conn != nil )
+	if( $conn != nil && $conn.connOpen )
 		decision = nil
 		while( decision == nil )
 			print "You have an open network connection, override it? [Y/N] "
