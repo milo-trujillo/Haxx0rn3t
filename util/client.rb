@@ -51,8 +51,8 @@ class Client
 	def clearScreen
 		# We don't want to make the game unplayable for people with tall
 		# terminals. To that end we're going to fib the screen delay and say
-		# clearing the screen always takes three seconds.
-		clearDelay = 3.0 / @height
+		# clearing the screen always takes constant time.
+		clearDelay = 2.5 / @height
 		for x in (0 .. @height - 1)
 			sleep(clearDelay)
 			@out.puts("")
@@ -62,8 +62,9 @@ class Client
 
 	def logout
 		begin
+			puts("")
 			puts("Goodbye " + @name + ".")
-			Log.log(Log::Info, "User '" + @name + "' has logged out")
+			Log.log(Log::Info, "Logged out '" + @name + "'")
 			@out.close
 		rescue => e
 			Log.log(Log::Error, "Problem logging out: " + e.message)
