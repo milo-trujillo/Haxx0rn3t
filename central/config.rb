@@ -5,7 +5,7 @@
 	files. It also provides utilities for creating necessary directories.
 =end
 
-require_relative 'log'
+require_relative '../util/log'
 
 Thread.abort_on_exception = true
 
@@ -21,9 +21,8 @@ module Configuration
 	# TODO: Add support for binding to specific interfaces? Max connections?
 	ListenPort = 1234
 
-	# Logging
-	# TODO: Add paths for log files, or config for syslog, whatever we decide on
-	DebugMode = true
+	# BBS
+	MaxPosts = 500
 
 	# User configuration
 	# Later we may add variables for max users,
