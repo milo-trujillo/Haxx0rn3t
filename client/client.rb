@@ -6,7 +6,7 @@ require_relative 'config'
 
 $hosts = Hash.new
 
-Commands = ["dial", "resume", "help"]
+Commands = ["dial", "resume", "help", "quit"]
 
 def handleInput(input)
 	case input
@@ -26,6 +26,8 @@ def handleInput(input)
 			for c in Commands.sort
 				puts "\t" + c
 			end
+		when /^quit$/
+			exit(0)
 		else
 			if( DebugMode && input.length > 0 )
 				puts "Unknown command: " + input
