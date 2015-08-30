@@ -9,6 +9,8 @@
 	buffering (to allow partial lines like prompts to be sent).
 =end
 
+require_relative 'log'
+
 class Client
 	attr_reader :in
 	attr_reader :out
@@ -56,5 +58,16 @@ class Client
 			@out.puts("")
 		end
 		@out.puts("\033[0;0H")
+	end
+
+	def logout
+		begin
+			puts("Goodbye " + @name + ".")
+			Log.log(Log::Info, "User '" + @name + "' has logged out")
+			@out.close
+		rescue => e
+			Log.log(Log::Error, "Problem logging out: " + e.message)
+		end
+		Thread.current.exit
 	end
 end
