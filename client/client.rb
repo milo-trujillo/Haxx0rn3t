@@ -47,6 +47,7 @@ if __FILE__ == $0
 			puts "" # Clear the line in case the terminal printed a '^D'
 			exit(0)
 		end
+		Readline::HISTORY.pop if /^\s*$/ =~ input # Don't add blank history
 		input = input.chomp
 		handleInput(input)
 	end
