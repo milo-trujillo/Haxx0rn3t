@@ -1,9 +1,12 @@
 #!/usr/bin/env ruby
 
+require 'readline'
 require_relative 'network'
 require_relative 'config'
 
 $hosts = Hash.new
+
+Commands = ["dial", "resume", "help"]
 
 def handleInput(input)
 	case input
@@ -14,8 +17,15 @@ def handleInput(input)
 			else
 				puts "Hostname not known."
 			end
+		when /^dial$/
+			puts "USAGE: dial <hostname>"
 		when /^resume$/
 			resumeConnection
+		when /^help$/
+			puts "Available commands:"
+			for c in Commands.sort
+				puts "\t" + c
+			end
 		else
 			if( DebugMode && input.length > 0 )
 				puts "Unknown command: " + input
@@ -30,9 +40,7 @@ if __FILE__ == $0
 	if( $hosts.length == 1 )
 		puts "If this is your first time playing, type 'dial central'"
 	end
-	while( true )
-		print Prompt
-		input = gets
+	while( input = Readline.readline(Prompt, true) )
 		if( input == nil ) # Allow ^D to end the game
 			puts "" # Clear the line in case the terminal printed a '^D'
 			exit(0)
