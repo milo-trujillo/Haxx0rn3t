@@ -9,7 +9,10 @@
 	to be used by both central and node servers!
 =end
 
+require 'thread'
+
 module Log
+	$logLock = Mutex.new
 	$debugMode = true
 
 	# Define some constants for log messages
@@ -23,16 +26,26 @@ module Log
 		case level
 			when Debug
 				if( $debugMode == true )
-					puts "Debug: " + msg
+					$logLock.synchronize {
+						puts "Debug: " + msg
+					}
 				end
 			when Info
-				puts "Info: " + msg
+				$logLock.synchronize {
+					puts "Info: " + msg
+				}
 			when Warning
-				puts "WARNING: " + msg
+				$logLock.synchronize {
+					puts "WARNING: " + msg
+				}
 			when Error
-				puts "ERROR: " + msg
+				$logLock.synchronize {
+					puts "ERROR: " + msg
+				}
 			else
-				Log.log(Warning, "Malformed log message has improper log level")
+				$logLock.synchronize {
+					Log.log(Warning, "Log message has improper log level")
+				}
 		end
 	end
 
