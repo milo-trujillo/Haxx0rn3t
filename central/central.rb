@@ -6,8 +6,9 @@ require 'thread'
 require_relative 'user'
 require_relative 'config'
 require_relative 'currency'
-require_relative 'log'
+require_relative 'bbs'
 require_relative '../util/client'
+require_relative '../util/log'
 require_relative '../util/menu'
 
 module Central
@@ -43,9 +44,9 @@ module Central
 			Log.log(Log::Debug, "Client disconnected during login process")
 		end
 		m = Menu.new("Central Server", 
-			[["BBS", proc{ alert }],
+			[["BBS", proc{ BBS.printTitles(client) }],
 			["Messages", proc{ alert }],
-			["Logout", proc{ alert }]])
+			["Logout", proc{ client.logout }]])
 		begin
 			while(true)
 				m.print(client)
@@ -62,6 +63,10 @@ module Central
 
 	def Central.alert()
 		Log.log(Log::Debug, "Alert called!")
+	end
+
+	def Central.initializeState()
+		BBS.testFill(20) # Hack to test the BBS system
 	end
 
 	def Central.saveState()
@@ -103,6 +108,7 @@ if $0 == __FILE__
 		Central.loadState
 		Configuration.clearState
 	end
+	Central.initializeState # Once the BBS is done this will be an 'else'
 	server = TCPServer.open(Configuration::ListenPort)
 	while(true)
 		case SIGNAL_QUEUE.pop
