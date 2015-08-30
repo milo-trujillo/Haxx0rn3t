@@ -11,7 +11,7 @@ require 'base64'
 require 'digest/sha2'
 
 require_relative 'config'
-require_relative 'log'
+require_relative '../util/log'
 
 # We aren't expecting hard cryptographic security, but this way people
 # can't Google the ID strings and trivially get the real handles.

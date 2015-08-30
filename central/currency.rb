@@ -16,7 +16,7 @@
 
 require 'thread'
 
-require_relative 'log'
+require_relative '../util/log'
 
 module Currency
 	AssetLength = 40
