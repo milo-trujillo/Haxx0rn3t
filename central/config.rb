@@ -17,6 +17,9 @@ module Configuration
 	CurrencyPath = StateDir + "/currency.db"
 	StateFiles = [UserPath, CurrencyPath] # For looping over all config files
 
+	# Strings, prompts, and other UI
+	ContinuePrompt = "- Press Return -"
+
 	# Networking
 	# TODO: Add support for binding to specific interfaces? Max connections?
 	ListenPort = 1234

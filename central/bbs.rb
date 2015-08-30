@@ -27,6 +27,47 @@ module BBS
 	$postlock = Mutex.new
 	$posts = Array.new
 
+	def BBS.menu(client)
+		m = Menu.new("Bulletin Board System",
+			[["List", proc{ BBS.printTitles(client) }],
+			["Read", proc{ BBS.readMessage(client) }],
+			["Exit", proc{ return }]])
+		while( true )
+			m.print(client)
+			m.prompt(client)
+		end
+	end
+
+	def BBS.readMessage(client)
+		client.putsNow("Message number (blank to abort): ")
+		msg = client.gets
+		msg.gsub(/[^\d]/, "") # Leave only digits, ban negative numbers
+		if( msg.length == 0 )
+			return
+		end
+		msg = msg.to_i
+		title = nil
+		body = nil
+		$postlock.synchronize {
+			if( msg < $posts.length )
+				title = $posts[msg].title
+				body = $posts[msg].body
+			end
+		}
+		if( title == nil || body == nil )
+			client.puts("Error: Message does not exist!")
+		else
+			client.puts("")
+			client.puts("Message title: " + title)
+			client.puts("")
+			client.puts(body)
+			client.puts("")
+		end
+		client.puts(Configuration::ContinuePrompt)
+		foo = client.gets
+		return
+	end
+
 	def BBS.printTitles(client)
 		# We make a copy of the entries from the array beforehand so we
 		# don't have to hold a lock while printing to the user.
@@ -36,17 +77,18 @@ module BBS
 				titles.push(post.title)
 			end
 		}
-		for x in (0 .. titles.length - 1)
+		for x in ( 0 .. titles.length - 1 ).to_a.reverse # For loops can't do --
+			sleep(0.1)
 			title = titles[x]
 			space = client.width - (6 + title.length)
 			# If the user's terminal is too small they have to deal
 			if( space < 1 )
 				space = 1
 			end
-			formatstr = "   %03d" + (" "*space) + title + "\n"
+			formatstr = "   %3d" + (" "*space) + title + "\n"
 			client.out.printf(formatstr, x)
 		end
-		client.puts("- Press Return to Exit -")
+		client.puts(Configuration::ContinuePrompt)
 		foo = client.gets
 	end
 

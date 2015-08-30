@@ -44,7 +44,7 @@ module Central
 			Log.log(Log::Debug, "Client disconnected during login process")
 		end
 		m = Menu.new("Central Server", 
-			[["BBS", proc{ BBS.printTitles(client) }],
+			[["BBS", proc{ BBS.menu(client) }],
 			["Messages", proc{ alert }],
 			["Logout", proc{ client.logout }]])
 		begin
