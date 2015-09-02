@@ -93,6 +93,16 @@ module BBS
 		foo = client.gets
 	end
 
+	def BBS.addPost(p)
+		if( p.respond_to?(title) && p.respond_to?(type) && p.respond_to?(body) )
+			$postLock.synchronize {
+				$posts.push(p)
+			}
+		else
+			raise "Post doesn't follow needed API!"
+		end
+	end
+
 	def BBS.testFill(size)
 		$postlock.synchronize {
 			for x in (0 .. size)
