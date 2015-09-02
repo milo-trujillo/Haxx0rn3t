@@ -70,13 +70,17 @@ module Central
 	end
 
 	def Central.saveState()
+		Log.log(Log::Info, "Saving state information to disk...")
 		saveUsersToFile(Configuration::UserPath, $users, $userLock)
 		Currency.saveManifest(Configuration::CurrencyPath)
+		Log.log(Log::Info, "Done saving state.")
 	end
 
 	def Central.loadState()
+		Log.log(Log::Info, "Loading state from disk...")
 		readUsersFromFile(Configuration::UserPath, $users, $userLock)
 		Currency.loadManifest(Configuration::CurrencyPath)
+		Log.log(Log::Info, "Done loading state.")
 	end
 end
 
@@ -97,13 +101,13 @@ end
 def handleInt
 	Configuration.prepareState
 	puts("") # My terminal prints '^C', so I'd like to throw in a newline
-	Log.log(Log::Info, "Saving state information to disk...")
 	Central.saveState
 	Log.log(Log::Info, "Quitting...")
 	exit(0)
 end
 
 if $0 == __FILE__
+	Log.log(Log::Info, "Starting up...")
 	if( Configuration.stateExists )
 		Central.loadState
 		Configuration.clearState
