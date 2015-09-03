@@ -71,15 +71,31 @@ module Central
 
 	def Central.saveState()
 		Log.log(Log::Info, "Saving state information to disk...")
-		saveUsersToFile(Configuration::UserPath, $users, $userLock)
-		Currency.saveManifest(Configuration::CurrencyPath)
+		begin
+			saveUsersToFile(Configuration::UserPath, $users, $userLock)
+			Currency.saveManifest(Configuration::CurrencyPath)
+			BBS.saveBoard(Configuration::BBSPath)
+		rescue => e
+			Log.log(Log::Error, "Problem saving state!")
+			Log.log(Log::Error, e.message)
+			Log.log(Log::Error, e.backtrace)
+			exit(1) # Don't try to continue if we'll fry the state
+		end
 		Log.log(Log::Info, "Done saving state.")
 	end
 
 	def Central.loadState()
 		Log.log(Log::Info, "Loading state from disk...")
-		readUsersFromFile(Configuration::UserPath, $users, $userLock)
-		Currency.loadManifest(Configuration::CurrencyPath)
+		begin
+			readUsersFromFile(Configuration::UserPath, $users, $userLock)
+			Currency.loadManifest(Configuration::CurrencyPath)
+			BBS.loadBoard(Configuration::BBSPath)
+		rescue => e
+			Log.log(Log::Error, "Problem loading state!")
+			Log.log(Log::Error, e.message)
+			Log.log(Log::Error, e.backtrace)
+			exit(1) # Don't try to continue if we'll fry the state
+		end
 		Log.log(Log::Info, "Done loading state.")
 	end
 end
@@ -111,8 +127,9 @@ if $0 == __FILE__
 	if( Configuration.stateExists )
 		Central.loadState
 		Configuration.clearState
+	else
+		Central.initializeState
 	end
-	Central.initializeState # Once the BBS is done this will be an 'else'
 	server = TCPServer.open(Configuration::ListenPort)
 	while(true)
 		case SIGNAL_QUEUE.pop

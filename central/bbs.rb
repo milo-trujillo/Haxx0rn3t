@@ -8,6 +8,8 @@
 =end
 
 require 'thread'
+require 'zlib'
+require 'yaml'
 
 require_relative 'config'
 
@@ -101,6 +103,29 @@ module BBS
 		else
 			raise "Post doesn't follow needed API!"
 		end
+	end
+
+	# There may be a *lot* of BBS posts, but they're all text data, so they
+	# should compress nicely. I'm taking the lazy approach and letting YAML
+	# and Zlib make things tiny for me.
+	def BBS.saveBoard(filename)
+		f = File.open(filename, "w")
+		postblob = ""
+		$postlock.synchronize {
+			postblob = YAML.dump($posts)
+		}
+		f.puts(Zlib::Deflate.deflate(postblob))
+		f.close()
+	end
+
+	# To load from disk we need to decompress, then un-YAML the result.
+	def BBS.loadBoard(filename)
+		f = File.open(filename, "r")
+		postblob = Zlib::Inflate.inflate(f.gets)
+		$postlock.synchronize {
+			$posts = YAML.load(postblob)
+		}
+		f.close()
 	end
 
 	def BBS.testFill(size)

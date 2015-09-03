@@ -15,7 +15,8 @@ module Configuration
 	StateDir = "./state" # Later this might be /usr/games/lib/Haxx0rn3t
 	UserPath = StateDir + "/users.db"
 	CurrencyPath = StateDir + "/currency.db"
-	StateFiles = [UserPath, CurrencyPath] # For looping over all config files
+	BBSPath = StateDir + "/bbs.db"
+	StateFiles = [UserPath, CurrencyPath, BBSPath]
 
 	# Strings, prompts, and other UI
 	ContinuePrompt = "- Press Return -"
