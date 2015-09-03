@@ -27,20 +27,20 @@ module Log
 			when Debug
 				if( $debugMode == true )
 					$logLock.synchronize {
-						puts "Debug: " + msg
+						puts "Debug: " + msg.to_s
 					}
 				end
 			when Info
 				$logLock.synchronize {
-					puts "Info: " + msg
+					puts "Info: " + msg.to_s
 				}
 			when Warning
 				$logLock.synchronize {
-					puts "WARNING: " + msg
+					puts "WARNING: " + msg.to_s
 				}
 			when Error
 				$logLock.synchronize {
-					puts "ERROR: " + msg
+					puts "ERROR: " + msg.to_s
 				}
 			else
 				$logLock.synchronize {
