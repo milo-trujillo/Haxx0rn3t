@@ -121,7 +121,8 @@ module BBS
 	# To load from disk we need to decompress, then un-YAML the result.
 	def BBS.loadBoard(filename)
 		f = File.open(filename, "r")
-		postblob = Zlib::Inflate.inflate(f.gets)
+		# Note: Read the entire file at once in case compressed data contains \n
+		postblob = Zlib::Inflate.inflate(f.read)
 		$postlock.synchronize {
 			$posts = YAML.load(postblob)
 		}
