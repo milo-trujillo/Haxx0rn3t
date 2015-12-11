@@ -10,4 +10,5 @@ module Configuration
 	Port = 1234
 	StateDir = "state"
 	LoginFile = StateDir + "/" + "login.csv"
+	CentralHostFile = StateDir + "/" + "central.csv"
 end
